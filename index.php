@@ -36,4 +36,24 @@ $app->post('/login', function($request, $response){
     }
 });
 
+$app->post('/signup', function($request, $response){
+    try{
+        $con    = getDB();
+        $sql    = "INSERT INTO users (username, password) VALUES (:username, :password)";
+        $pre    = $con->prepare($sql, array(PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY));
+        $values = array(
+            ':username' => $request->getParam('username'),
+            ':password' => $request->getParam('password')
+        );
+        $result = $pre->execute($values);
+        if($result){
+            return $response->withJson(array('status' => 'Success'), 200);
+        }else{
+            return $response->withJson(array('status' => 'Failed'), 422);
+        }
+    }catch(\Exception $ex){
+        return $response->withJson(array('error' => $ex->getMessage()),422);
+    }
+});
+
 $app->run();
